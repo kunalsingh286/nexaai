@@ -11,21 +11,21 @@ BACKEND_URL = "http://localhost:8000"
 st.sidebar.title("Navigation")
 page = st.sidebar.radio(
     "Go to",
-    ["Upload Document", "Extract Fields"]
+    ["Upload Document", "Extract Fields", "Classify Dispute"]
 )
 
 # ---------------- Upload ----------------
 
 if page == "Upload Document":
 
-    st.header("📄 Upload Dispute Document")
+    st.header("📄 Upload Document")
 
     uploaded_file = st.file_uploader(
-        "Upload PDF or TXT file",
+        "Upload PDF or TXT",
         type=["pdf", "txt"]
     )
 
-    if uploaded_file and st.button("Process Document"):
+    if uploaded_file and st.button("Process"):
 
         files = {
             "file": (
@@ -46,7 +46,7 @@ if page == "Upload Document":
 
             st.session_state["doc_text"] = data["preview"]
 
-            st.success("Document processed!")
+            st.success("Processed")
 
             st.text(data["preview"])
 
@@ -58,32 +58,64 @@ if page == "Upload Document":
 
 if page == "Extract Fields":
 
-    st.header("🧠 Extract Structured Fields")
+    st.header("🧠 Extract Fields")
 
     default_text = st.session_state.get("doc_text", "")
 
     text = st.text_area(
-        "Document Text",
+        "Text",
         value=default_text,
         height=250
     )
 
-    if st.button("Extract Fields"):
-
-        payload = {"text": text}
+    if st.button("Extract"):
 
         res = requests.post(
             f"{BACKEND_URL}/api/extract",
-            json=payload
+            json={"text": text}
         )
 
         if res.status_code == 200:
 
-            data = res.json()
+            st.success("Extracted")
+            st.json(res.json()["fields"])
 
-            st.success("Fields extracted!")
+        else:
+            st.error(res.text)
 
-            st.json(data["fields"])
+
+# ---------------- Classify ----------------
+
+if page == "Classify Dispute":
+
+    st.header("📌 Dispute Classification")
+
+    default_text = st.session_state.get("doc_text", "")
+
+    text = st.text_area(
+        "Text for Classification",
+        value=default_text,
+        height=250
+    )
+
+    if st.button("Classify"):
+
+        res = requests.post(
+            f"{BACKEND_URL}/api/classify",
+            json={"text": text}
+        )
+
+        if res.status_code == 200:
+
+            data = res.json()["result"]
+
+            st.success("Classification Complete")
+
+            st.write("### Category")
+            st.write(data["category"])
+
+            st.write("### Confidence")
+            st.progress(data["confidence"])
 
         else:
             st.error(res.text)
