@@ -11,28 +11,22 @@ BACKEND_URL = "http://localhost:8000"
 st.sidebar.title("Navigation")
 page = st.sidebar.radio(
     "Go to",
-    ["Upload Document", "Extract Fields", "Classify Dispute"]
+    ["Upload", "Extract", "Classify", "Legal Assistant"]
 )
+
 
 # ---------------- Upload ----------------
 
-if page == "Upload Document":
+if page == "Upload":
 
     st.header("📄 Upload Document")
 
-    uploaded_file = st.file_uploader(
-        "Upload PDF or TXT",
-        type=["pdf", "txt"]
-    )
+    file = st.file_uploader("Upload PDF/TXT", type=["pdf", "txt"])
 
-    if uploaded_file and st.button("Process"):
+    if file and st.button("Process"):
 
         files = {
-            "file": (
-                uploaded_file.name,
-                uploaded_file.getvalue(),
-                uploaded_file.type
-            )
+            "file": (file.name, file.getvalue(), file.type)
         }
 
         res = requests.post(
@@ -43,11 +37,9 @@ if page == "Upload Document":
         if res.status_code == 200:
 
             data = res.json()
-
             st.session_state["doc_text"] = data["preview"]
 
             st.success("Processed")
-
             st.text(data["preview"])
 
         else:
@@ -56,15 +48,13 @@ if page == "Upload Document":
 
 # ---------------- Extract ----------------
 
-if page == "Extract Fields":
+if page == "Extract":
 
     st.header("🧠 Extract Fields")
 
-    default_text = st.session_state.get("doc_text", "")
-
     text = st.text_area(
         "Text",
-        value=default_text,
+        value=st.session_state.get("doc_text", ""),
         height=250
     )
 
@@ -77,7 +67,6 @@ if page == "Extract Fields":
 
         if res.status_code == 200:
 
-            st.success("Extracted")
             st.json(res.json()["fields"])
 
         else:
@@ -86,15 +75,13 @@ if page == "Extract Fields":
 
 # ---------------- Classify ----------------
 
-if page == "Classify Dispute":
+if page == "Classify":
 
-    st.header("📌 Dispute Classification")
-
-    default_text = st.session_state.get("doc_text", "")
+    st.header("📌 Classify Dispute")
 
     text = st.text_area(
-        "Text for Classification",
-        value=default_text,
+        "Text",
+        value=st.session_state.get("doc_text", ""),
         height=250
     )
 
@@ -109,13 +96,43 @@ if page == "Classify Dispute":
 
             data = res.json()["result"]
 
-            st.success("Classification Complete")
-
-            st.write("### Category")
-            st.write(data["category"])
-
-            st.write("### Confidence")
+            st.write("Category:", data["category"])
             st.progress(data["confidence"])
+
+        else:
+            st.error(res.text)
+
+
+# ---------------- Legal RAG ----------------
+
+if page == "Legal Assistant":
+
+    st.header("⚖️ Legal Assistant (RAG)")
+
+    question = st.text_input(
+        "Ask legal question"
+    )
+
+    if st.button("Ask"):
+
+        res = requests.post(
+            f"{BACKEND_URL}/api/rag",
+            json={"question": question}
+        )
+
+        if res.status_code == 200:
+
+            data = res.json()["data"]
+
+            st.success("Answer")
+
+            st.write("### Answer")
+            st.write(data["answer"])
+
+            st.write("### Sources")
+
+            for src in data["sources"]:
+                st.code(src)
 
         else:
             st.error(res.text)
