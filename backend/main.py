@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.core.logger import setup_logger
+from backend.api.ingest import router as ingest_router
 
 logger = setup_logger()
 
@@ -18,6 +19,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+app.include_router(ingest_router, prefix="/api")
 
 
 @app.get("/")
