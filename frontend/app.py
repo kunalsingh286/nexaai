@@ -9,7 +9,12 @@ st.subheader("AI-Powered Dispute & Collections Platform")
 BACKEND_URL = "http://localhost:8000"
 
 st.sidebar.title("Navigation")
-page = st.sidebar.radio("Go to", ["Upload Document"])
+page = st.sidebar.radio(
+    "Go to",
+    ["Upload Document", "Extract Fields"]
+)
+
+# ---------------- Upload ----------------
 
 if page == "Upload Document":
 
@@ -22,36 +27,63 @@ if page == "Upload Document":
 
     if uploaded_file and st.button("Process Document"):
 
-        with st.spinner("Processing..."):
+        files = {
+            "file": (
+                uploaded_file.name,
+                uploaded_file.getvalue(),
+                uploaded_file.type
+            )
+        }
 
-            files = {
-                "file": (
-                    uploaded_file.name,
-                    uploaded_file.getvalue(),
-                    uploaded_file.type
-                )
-            }
+        res = requests.post(
+            f"{BACKEND_URL}/api/ingest",
+            files=files
+        )
 
-            try:
-                res = requests.post(
-                    f"{BACKEND_URL}/api/ingest",
-                    files=files
-                )
+        if res.status_code == 200:
 
-                if res.status_code == 200:
+            data = res.json()
 
-                    data = res.json()
+            st.session_state["doc_text"] = data["preview"]
 
-                    st.success("Document processed!")
+            st.success("Document processed!")
 
-                    st.write("### Preview")
-                    st.text(data["preview"])
+            st.text(data["preview"])
 
-                    st.write("### Metadata")
-                    st.json(data)
+        else:
+            st.error(res.text)
 
-                else:
-                    st.error(res.text)
 
-            except Exception as e:
-                st.error(str(e))
+# ---------------- Extract ----------------
+
+if page == "Extract Fields":
+
+    st.header("🧠 Extract Structured Fields")
+
+    default_text = st.session_state.get("doc_text", "")
+
+    text = st.text_area(
+        "Document Text",
+        value=default_text,
+        height=250
+    )
+
+    if st.button("Extract Fields"):
+
+        payload = {"text": text}
+
+        res = requests.post(
+            f"{BACKEND_URL}/api/extract",
+            json=payload
+        )
+
+        if res.status_code == 200:
+
+            data = res.json()
+
+            st.success("Fields extracted!")
+
+            st.json(data["fields"])
+
+        else:
+            st.error(res.text)

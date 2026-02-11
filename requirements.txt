@@ -6,17 +6,31 @@ pydantic-settings
 sqlalchemy
 psycopg2-binary
 requests
-langchain
-langchain-community
-langchain-openai
+
+# LangChain (compatible with PaddleX)
+langchain==0.1.16
+langchain-community==0.0.36
+langchain-openai==0.0.8
+
 faiss-cpu
 chromadb
+
+# OCR
 paddleocr
+paddlepaddle
+
+# Parsing
 pymupdf
 pdfplumber
+
+# NLP
 spacy
 sentence-transformers
+
+# LLM
 openai
+
+# Utils
 python-dotenv
 langfuse
 structlog

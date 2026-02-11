@@ -3,13 +3,14 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from backend.core.logger import setup_logger
 from backend.api.ingest import router as ingest_router
+from backend.api.extract import router as extract_router
 
 logger = setup_logger()
 
 app = FastAPI(
     title="NexaAI API",
     description="AI-powered Dispute & Collections Platform",
-    version="0.1.0"
+    version="0.2.0"
 )
 
 app.add_middleware(
@@ -20,8 +21,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 app.include_router(ingest_router, prefix="/api")
+app.include_router(extract_router, prefix="/api")
 
 
 @app.get("/")
