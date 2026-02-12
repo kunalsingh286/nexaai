@@ -1,0 +1,18 @@
+SETTLEMENT AGREEMENT
+
+This Agreement is entered on {{date}} between:
+
+{{party1}} and {{party2}}
+
+Outstanding Amount: ₹{{amount}}
+
+Terms:
+1. Payment shall be made within {{days}} days.
+2. No further claims after settlement.
+3. Breach may invite legal action.
+
+Signed:
+
+{{party1}}
+
+{{party2}}

@@ -1,0 +1,25 @@
+LEGAL NOTICE
+
+From:
+{{sender}}
+
+To:
+{{receiver}}
+
+Date: {{date}}
+
+Subject: Demand for Outstanding Payment of ₹{{amount}}
+
+Dear {{receiver}},
+
+This is to formally notify you that an amount of ₹{{amount}} remains unpaid
+despite repeated reminders. The payment was due on {{due_date}}.
+
+As per applicable Indian laws and contractual obligations, you are hereby
+requested to clear the outstanding amount within {{deadline}} days from
+receipt of this notice.
+
+Failure to comply may result in legal action without further notice.
+
+Sincerely,
+{{sender}}
