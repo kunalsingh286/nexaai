@@ -7,6 +7,7 @@ from backend.api.ingest import router as ingest_router
 from backend.api.extract import router as extract_router
 from backend.api.classify import router as classify_router
 from backend.api.rag import router as rag_router
+from backend.api.chat import router as chat_router
 
 
 logger = setup_logger()
@@ -14,7 +15,7 @@ logger = setup_logger()
 app = FastAPI(
     title="NexaAI API",
     description="AI-powered Dispute & Collections Platform",
-    version="0.4.0"
+    version="0.5.0"
 )
 
 app.add_middleware(
@@ -29,6 +30,7 @@ app.include_router(ingest_router, prefix="/api")
 app.include_router(extract_router, prefix="/api")
 app.include_router(classify_router, prefix="/api")
 app.include_router(rag_router, prefix="/api")
+app.include_router(chat_router, prefix="/api")
 
 
 @app.get("/")

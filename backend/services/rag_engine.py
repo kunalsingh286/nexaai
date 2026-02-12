@@ -1,57 +1,74 @@
-from langchain_community.vectorstores import FAISS
-from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain_openai import ChatOpenAI
-from langchain.chains import RetrievalQA
-
 import os
+import faiss
+import numpy as np
+import pickle
+
+from sentence_transformers import SentenceTransformer
+import ollama
 
 
-INDEX_DIR = "data/faiss_index"
+INDEX_PATH = "data/faiss_index/index.faiss"
+META_PATH = "data/faiss_index/meta.pkl"
 
 
-def load_rag_chain():
-
-    embeddings = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/all-MiniLM-L6-v2"
-    )
-
-    db = FAISS.load_local(
-        INDEX_DIR,
-        embeddings,
-        allow_dangerous_deserialization=True
-    )
-
-    retriever = db.as_retriever(search_kwargs={"k": 3})
-
-    llm = ChatOpenAI(
-        model="gpt-4o-mini",
-        temperature=0
-    )
-
-    chain = RetrievalQA.from_chain_type(
-        llm=llm,
-        retriever=retriever,
-        return_source_documents=True
-    )
-
-    return chain
+model = SentenceTransformer("all-MiniLM-L6-v2")
 
 
-rag_chain = load_rag_chain()
+def load_index():
+
+    index = faiss.read_index(INDEX_PATH)
+
+    with open(META_PATH, "rb") as f:
+        texts = pickle.load(f)
+
+    return index, texts
+
+
+index, texts = load_index()
+
+
+def search_docs(query, k=3):
+
+    emb = model.encode([query])
+    D, I = index.search(np.array(emb).astype("float32"), k)
+
+    results = []
+
+    for idx in I[0]:
+        if idx < len(texts):
+            results.append(texts[idx])
+
+    return results
 
 
 def ask_legal_question(question: str):
 
-    result = rag_chain({"query": question})
+    docs = search_docs(question)
 
-    answer = result["result"]
+    context = "\n\n".join(docs)
 
-    sources = []
+    prompt = f"""
+You are a legal assistant for Indian business disputes.
 
-    for doc in result["source_documents"]:
-        sources.append(doc.page_content[:200])
+Context:
+{context}
+
+Question:
+{question}
+
+Answer clearly with legal basis.
+"""
+
+    response = ollama.chat(
+        model="llama3",
+        messages=[
+            {"role": "user", "content": prompt}
+        ]
+    )
+
+    answer = response["message"]["content"]
 
     return {
         "answer": answer,
-        "sources": sources
+        "sources": docs
     }

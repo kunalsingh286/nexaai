@@ -7,13 +7,10 @@ sqlalchemy
 psycopg2-binary
 requests
 
-# LangChain (compatible with PaddleX)
-langchain==0.1.16
-langchain-community==0.0.36
-langchain-openai==0.0.8
-
+# Vector DB
 faiss-cpu
 chromadb
+sentence-transformers
 
 # OCR
 paddleocr
@@ -25,10 +22,9 @@ pdfplumber
 
 # NLP
 spacy
-sentence-transformers
 
-# LLM
-openai
+# LLM (Direct)
+ollama
 
 # Utils
 python-dotenv
@@ -37,3 +33,8 @@ structlog
 cryptography
 passlib[bcrypt]
 python-jose[cryptography]
+
+# ML
+scikit-learn
+joblib
+numpy

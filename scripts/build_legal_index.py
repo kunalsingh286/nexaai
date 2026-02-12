@@ -1,49 +1,51 @@
 import os
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import FAISS
-from langchain_community.embeddings import HuggingFaceEmbeddings
+import faiss
+import pickle
+import numpy as np
+
+from sentence_transformers import SentenceTransformer
 
 
 DATA_DIR = "data/corpora"
-INDEX_DIR = "data/faiss_index"
+OUT_DIR = "data/faiss_index"
+
+model = SentenceTransformer("all-MiniLM-L6-v2")
 
 
-def load_documents():
+def load_docs():
+
     docs = []
 
-    for fname in os.listdir(DATA_DIR):
-        path = os.path.join(DATA_DIR, fname)
+    for f in os.listdir(DATA_DIR):
 
-        with open(path, "r", encoding="utf-8") as f:
-            docs.append(f.read())
+        path = os.path.join(DATA_DIR, f)
+
+        with open(path, "r", encoding="utf-8") as file:
+            docs.append(file.read())
 
     return docs
 
 
 def main():
 
-    docs = load_documents()
+    texts = load_docs()
 
-    splitter = RecursiveCharacterTextSplitter(
-        chunk_size=500,
-        chunk_overlap=50
-    )
+    embeddings = model.encode(texts)
 
-    chunks = []
+    dim = embeddings.shape[1]
 
-    for doc in docs:
-        chunks.extend(splitter.split_text(doc))
+    index = faiss.IndexFlatL2(dim)
 
-    embeddings = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/all-MiniLM-L6-v2"
-    )
+    index.add(np.array(embeddings).astype("float32"))
 
-    db = FAISS.from_texts(chunks, embeddings)
+    os.makedirs(OUT_DIR, exist_ok=True)
 
-    os.makedirs(INDEX_DIR, exist_ok=True)
-    db.save_local(INDEX_DIR)
+    faiss.write_index(index, f"{OUT_DIR}/index.faiss")
 
-    print("Legal index built successfully.")
+    with open(f"{OUT_DIR}/meta.pkl", "wb") as f:
+        pickle.dump(texts, f)
+
+    print("FAISS index rebuilt.")
 
 
 if __name__ == "__main__":

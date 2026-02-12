@@ -11,8 +11,13 @@ BACKEND_URL = "http://localhost:8000"
 st.sidebar.title("Navigation")
 page = st.sidebar.radio(
     "Go to",
-    ["Upload", "Extract", "Classify", "Legal Assistant"]
+    ["Upload", "Extract", "Classify", "Legal Assistant", "AI Negotiator"]
 )
+
+
+# Session chat history
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
 
 
 # ---------------- Upload ----------------
@@ -107,11 +112,9 @@ if page == "Classify":
 
 if page == "Legal Assistant":
 
-    st.header("⚖️ Legal Assistant (RAG)")
+    st.header("⚖️ Legal Assistant")
 
-    question = st.text_input(
-        "Ask legal question"
-    )
+    question = st.text_input("Ask legal question")
 
     if st.button("Ask"):
 
@@ -124,8 +127,6 @@ if page == "Legal Assistant":
 
             data = res.json()["data"]
 
-            st.success("Answer")
-
             st.write("### Answer")
             st.write(data["answer"])
 
@@ -136,3 +137,42 @@ if page == "Legal Assistant":
 
         else:
             st.error(res.text)
+
+
+# ---------------- AI Chat ----------------
+
+if page == "AI Negotiator":
+
+    st.header("🤝 AI Negotiation Assistant")
+
+    user_msg = st.text_input("Your message")
+
+    if st.button("Send") and user_msg:
+
+        res = requests.post(
+            f"{BACKEND_URL}/api/chat",
+            json={"message": user_msg}
+        )
+
+        if res.status_code == 200:
+
+            reply = res.json()["reply"]
+
+            st.session_state.chat_history.append(
+                ("You", user_msg)
+            )
+
+            st.session_state.chat_history.append(
+                ("NexaAI", reply)
+            )
+
+        else:
+            st.error(res.text)
+
+
+    for sender, msg in st.session_state.chat_history:
+
+        if sender == "You":
+            st.markdown(f"**🧑 You:** {msg}")
+        else:
+            st.markdown(f"**🤖 NexaAI:** {msg}")
