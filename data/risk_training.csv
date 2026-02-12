@@ -1,0 +1,11 @@
+dispute_type,amount,delay_days,doc_length,sentiment,legal_strength,win,days_to_resolve,settled,loss_amount
+payment_delay,250000,45,1800,0.2,0.7,1,40,1,0
+contract_breach,900000,120,4200,-0.3,0.4,0,180,0,350000
+quality_issue,300000,30,1600,0.1,0.6,1,35,1,20000
+payment_delay,120000,20,900,0.5,0.8,1,25,1,0
+contract_breach,500000,90,3500,-0.4,0.3,0,150,0,200000
+payment_delay,700000,75,2600,-0.1,0.5,0,95,0,180000
+quality_issue,180000,15,800,0.6,0.9,1,20,1,0
+payment_delay,400000,60,2100,0.0,0.6,1,55,1,5000
+contract_breach,1000000,200,5000,-0.6,0.2,0,240,0,450000
+quality_issue,220000,25,1400,0.3,0.7,1,30,1,0
