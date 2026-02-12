@@ -12,6 +12,8 @@ from backend.api.risk import router as risk_router
 from backend.api.draft import router as draft_router
 from backend.api.users import router as users_router
 from backend.api.cases import router as cases_router
+from backend.api.explain import router as explain_router
+from backend.api.audit import router as audit_router
 
 
 Base.metadata.create_all(bind=engine)
@@ -28,6 +30,8 @@ app.include_router(risk_router)
 app.include_router(draft_router)
 app.include_router(users_router)
 app.include_router(cases_router)
+app.include_router(explain_router)
+app.include_router(audit_router)
 
 
 @app.get("/")
