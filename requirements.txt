@@ -38,3 +38,6 @@ python-jose[cryptography]
 scikit-learn
 joblib
 numpy
+xgboost
+gunicorn
+

@@ -6,7 +6,7 @@ from backend.services.parser import parse_document
 router = APIRouter()
 
 
-@router.post("/ingest")
+@router.post("/upload")
 async def ingest_document(file: UploadFile = File(...)):
     try:
         content = await file.read()

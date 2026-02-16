@@ -1,0 +1,31 @@
+version: '3.9'
+
+services:
+
+  db:
+    image: postgres:15
+    container_name: nexaai_db
+    restart: always
+    environment:
+      POSTGRES_USER: nexaai
+      POSTGRES_PASSWORD: nexaai123
+      POSTGRES_DB: nexaai
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: .
+    container_name: nexaai_backend
+    restart: always
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql://nexaai:nexaai123@db:5432/nexaai
+      SECRET_KEY: supersecretkey
+    ports:
+      - "8000:8000"
+
+volumes:
+  postgres_data:

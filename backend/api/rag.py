@@ -6,7 +6,7 @@ from backend.services.rag_engine import ask_legal_question
 router = APIRouter()
 
 
-@router.post("/rag")
+@router.post("/ask")
 def legal_rag(payload: dict = Body(...)):
 
     try:

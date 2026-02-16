@@ -4,8 +4,9 @@ from backend.services.draft_engine import engine
 router = APIRouter()
 
 
-@router.post("/draft/{doc_type}")
-def generate_draft(doc_type: str, payload: dict):
+@router.post("/")
+def generate_draft(payload: dict):
+    doc_type = payload.get("type")
 
     if doc_type == "legal_notice":
         template = "legal_notice.txt"
